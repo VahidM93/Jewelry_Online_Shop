@@ -31,11 +31,3 @@ class Account(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
-
-
-class Address(ModelInfo):
-    address = models.CharField(max_length=200)
-    account_id = models.ForeignKey(Account, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.address
