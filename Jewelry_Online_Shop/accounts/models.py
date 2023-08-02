@@ -5,7 +5,7 @@ import pytz
 from .managers import AccountManager
 from django.utils.translation import gettext_lazy as _
 from core.utils import phone_regex_validator
-from . import OtpCode
+
 
 
 
@@ -35,7 +35,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_admin
 
-    class OtpCode(models.Model):
+class OtpCode(models.Model):
         phone_number = models.CharField(max_length=13, validators=[phone_regex_validator], verbose_name=_('Phone Number'))
         code = models.PositiveSmallIntegerField(verbose_name=_('Code'))
         created = models.DateTimeField(auto_now=True, verbose_name=_('Created'))
