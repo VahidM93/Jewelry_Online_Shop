@@ -1,6 +1,6 @@
 from datetime import timedelta,datetime
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin,Group,Permission
 import pytz
 from .managers import AccountManager
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +20,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     objects = AccountManager()
-
+    groups = models.ManyToManyField(Group, related_name='user_accounts')
+    user_permissions = models.ManyToManyField(Permission, related_name='user_accounts_permissions')
     class Meta:
         verbose_name = _('Account')
         verbose_name_plural = _('Accounts')
