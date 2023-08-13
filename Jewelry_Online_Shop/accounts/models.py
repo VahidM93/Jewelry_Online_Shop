@@ -27,7 +27,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('Accounts')
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = ['firstname', 'lastname']
+    REQUIRED_FIELDS = ['email','full_name']
 
     def __str__(self):
         return self.phone_number

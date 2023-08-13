@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .forms import UserCreationForm, UserChangeForm
 from .models import Account, OtpCode
+from django.contrib.auth.models import Group
 
 
 @admin.register(OtpCode)
@@ -39,5 +40,9 @@ class UserAdmin(BaseUserAdmin):
             form.base_fields['is_superuser'].disabled = True
         return form
 
-
+# Now register the new UserAdmin...
 admin.site.register(Account, UserAdmin)
+
+#since we're not using Django's built-in permissions,
+# unregister the Group model from admin.
+admin.site.unregister(Group)

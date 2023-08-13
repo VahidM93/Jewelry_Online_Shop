@@ -29,7 +29,7 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
-
+#https://docs.djangoproject.com/en/4.2/topics/auth/customizing/#auth-custom-user
 class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField(label=("Password"),
         help_text=("Raw passwords are not stored, so there is no way to see "
@@ -40,7 +40,7 @@ class UserChangeForm(forms.ModelForm):
         model = Account
         fields = ['email', 'phone_number', 'full_name', 'password', 'last_login']
         labels = {'email': _('email'), 'phone_number': _('phone_number'),
-                  'full_name': _('password'), 'last_login': _('last_login')}
+                  'full_name': _('full_name'), 'last_login': _('last_login')}
 
 
 class UserRegistrationForm(forms.Form):

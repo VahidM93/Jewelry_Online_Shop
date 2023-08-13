@@ -28,7 +28,9 @@ class UserRegisterView(View):
                 rand_code = random_code()
                 print(rand_code)
                 send_otp_code(cd['phone'], rand_code)
+                #save code with phone
                 OtpCode.objects.create(phone_number=cd['phone'], code=rand_code)
+                #save inputed data in session
                 request.session['user_registration_info'] = {
                     'phone_number': cd['phone'],
                     'email': cd['email'],
@@ -39,7 +41,7 @@ class UserRegisterView(View):
                 return redirect('accounts:verify_code')
             else:
                 messages.error(request, _('Too many attempts. Please Try again 20 minutes later.'), 'danger')
-                return redirect('product:home')
+                return redirect('home:home')
         return render(request, self.template_name, {'form': form})
 
 
@@ -68,24 +70,24 @@ class UserRegisterVerifyCodeView(View):
                     codes.delete()
                     messages.success(request, _('information has registered successfully'), 'success')
                     login(request, user)
-                    return redirect('product:home')
+                    return redirect('home:home')
                 else:
                     messages.error(request, _('The code has expired. Please try again.'), 'danger')
                     return redirect('accounts:user_register')
             else:
                 messages.error(request, _('WRONG Code!'), 'danger')
                 return redirect('accounts:verify_code')
-        return redirect('product:home')
+        return redirect('home:home')
 
 
 class UserLoginView(View):
     form_class = UserLoginForm
     template_name = 'accounts/login.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('product:home')
-        return super().dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         return redirect('product:home')
+    #     return super().dispatch(request, *args, **kwargs)
 
     def setup(self, request, *args, **kwargs):
         self.next = request.GET.get('next')
@@ -105,7 +107,7 @@ class UserLoginView(View):
                 messages.success(request, _('logged in successfully'), 'success')
                 if self.next:
                     return redirect(self.next)
-                return redirect('product:home')
+                return redirect('home:home')
             messages.error(request, _('Phone number or Password is WRONG!'), 'danger')
         return render(request, self.template_name, {'form': form})
 
@@ -114,7 +116,7 @@ class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         messages.success(request, _('logged out successfully'), 'info')
-        return redirect('product:home')
+        return redirect('home:home')
 
 class UserPasswordResetView(auth_views.PasswordResetView):
     template_name = 'accounts/password_reset_form.html'
