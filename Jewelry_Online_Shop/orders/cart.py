@@ -12,21 +12,36 @@ class Cart:
         if not cart:
             cart = self.session[CART_SESSION_ID] = {}
         self.cart = cart
-
+    #CREATE GENERATOR FOR OBJECT
     def __iter__(self):
+        #get ids of cart, keys are ids
+        '''session{
+            cart:{
+                '1':{price:
+                quantity:
+                },
+                '2':{
+                    price:
+                quantity:
+                }
+            }
+         }'''
         product_ids = self.cart.keys()
+        #use __ for id=product_ids, because product_ids is a list and in use to check id in product_ids
         products = Product.objects.filter(id__in=product_ids)
         cart = self.cart.copy()
+        #add product name and image ,total price and discount price to cart
         for product in products:
             cart[str(product.id)]['product'] = product
             cart[str(product.id)]['image'] = product.image
 
         for item in cart.values():
+            #item['price'] is str,should use int or decimal
             item['total_price'] = Decimal(item['price']) * item['quantity']
             item['discount_price'] = Decimal(item['price_no_discount']) - Decimal(item['price'])
 
             yield item
-
+    #for create context processor
     def __len__(self):
         return len(self.cart)
 
