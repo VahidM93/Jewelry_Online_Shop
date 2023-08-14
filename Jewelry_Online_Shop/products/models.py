@@ -7,13 +7,17 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 
+class CategoryManager(models.Manager):
+    def get_active_list(self):
+        return self.filter(is_sub=True)
+
 class Category(ModelInfo):
     sub_category = models.ForeignKey('self', on_delete=models.CASCADE, related_name='scategory', null=True, blank=True,
                                      verbose_name=_('Upper Category'))
     is_sub = models.BooleanField(default=False, verbose_name=_('Sub Category Status'))
     name = models.CharField(max_length=200, verbose_name=_('Category Name'))
     slug = models.SlugField(max_length=200, unique=True, verbose_name=_('Slug'))
-
+    objects = CategoryManager()
     class Meta:
         ordering = ('is_sub', 'name',)
         verbose_name = _('category')
@@ -40,6 +44,10 @@ class Property(ModelInfo):
     def __str__(self):
         return f'{self.key}:{self.weight} with fee {self.fee}'
 
+class ProductManager(models.Manager):
+    def get_active_list(self):
+        return self.filter(is_available=True) 
+
 
 class Product(ModelInfo):
     category = models.ManyToManyField(Category, related_name='products', verbose_name=_('Category'))
@@ -54,6 +62,7 @@ class Product(ModelInfo):
     stock = models.PositiveIntegerField(verbose_name=_('Stock'))
     is_available = models.BooleanField(null=True, blank=True, verbose_name=_('Availability Status'))
 
+    objects = ProductManager()
     class Meta:
         ordering = ('name',)
         verbose_name = _('product')
