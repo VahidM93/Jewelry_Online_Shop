@@ -35,7 +35,7 @@ class Cart:
             product_id = str(product.id)
             if product_id not in self.cart:
                 self.cart[product_id] = {}
-            self.cart[product_id]['product'] = product
+            self.cart[product_id]['product'] = product.id
             self.cart[product_id]['price_no_discount'] = product.price_no_discount
             self.cart[product_id]['price'] = str(product.price)
             self.cart[product_id]['quantity'] = self.cart.get(product_id, {}).get('quantity', 0) + quantity

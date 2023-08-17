@@ -40,8 +40,8 @@ class ProductDetailsView(View):
 
     def setup(self, request, *args, **kwargs):
         self.product = Product.objects.get(slug=kwargs['slug'])
-        self.properties = self.product.properties.all()
-        self.comments = self.product.pcomments.all()
+        self.properties = self.product.properties.all().values()  # Convert related instances to values
+        self.comments = self.product.pcomments.all().values()     # Convert related instances to values
         return super().setup(request, *args, **kwargs)
 
     def get(self, request, slug):
@@ -50,6 +50,7 @@ class ProductDetailsView(View):
         comments = self.comments
         return render(request, self.template_name, {'product': product, 'properties': properties, 'form': self.form_add,
                                                     'form_comment': self.form_comment, 'comments': comments})
+
 
     @method_decorator(login_required)
     def post(self, request, slug):
@@ -61,7 +62,7 @@ class ProductDetailsView(View):
                 product=self.product,
                 title=cd['title'],
                 body=cd['comment'],
-                is_active=False,
+                # is_active=False,
             )
             messages.success(request, _('Comment added successfully'), 'info')
             return redirect('products:product_details', slug=slug)

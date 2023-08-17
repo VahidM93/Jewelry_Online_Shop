@@ -7,8 +7,8 @@ os.environ.setdefault('DJANGO_SETTING_MODULE','Jewelry_Online_shop.settings')
 celery_app=Celery('Jewelry_Online_shop')
 celery_app.autodiscover_tasks()
 
-celery_app.conf.broker_url='ampq://rabbitmq'
-celery_app.conf.result_backend='rpc://'
+celery_app.conf.broker_url='redis://localhost'
+celery_app.conf.result_backend='redis://'
 celery_app.conf.task_serializer='json'
 celery_app.conf.result_serializer='json'
 celery_app.conf.accept_content='json'

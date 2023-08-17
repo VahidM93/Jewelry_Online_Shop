@@ -33,7 +33,7 @@
 
             <tr class="text-center">
                 <th scope="row" class="align-middle">{{ forloop.counter }}</th>
-                <td><a href="{% url 'product:product_details' item.product.slug %}"><img src="{{ item.image.url }}"
+                <td><a href="{% url 'products:product_details' item.product.slug %}"><img src="{{ item.image.url }}"
                                                                                          alt="{{ item.product }}"
                                                                                          width="150" height="150"
                                                                                          style="object-fit: scale-down"></a>
@@ -65,7 +65,7 @@
                 <a href="{% url 'orders:order_create' %}"
                    class="btn btn-primary {% if cart|length == 0 %} disabled {% endif %}">{% translate 'Checkout' %}</a>
 
-                <a href="{% url 'product:home' %}"
+                <a href="{% url 'products:home' %}"
                    class="btn btn-success">{% translate 'Proceed Shopping' %}</a>
             </td>
         </tr>

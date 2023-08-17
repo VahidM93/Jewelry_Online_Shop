@@ -39,7 +39,7 @@ class CartAddView(View):
             cd = form.cleaned_data
             if cd['quantity'] > product.stock:
                 messages.error(request, _('You can not add more than {} to your cart').format(product.stock), 'danger')
-                return redirect('product:product_details', slug=product.slug)
+                return redirect('products:product_details', slug=product.slug)
             else:
                 messages.success(request, _('Product added to cart successfully'), 'success')
                 cart.add(product, form.cleaned_data['quantity'])
