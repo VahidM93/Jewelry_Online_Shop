@@ -58,11 +58,11 @@ class OtpCode(models.Model):
             return f'{self.phone_number} - {self.code} - {self.created}'
 
         def is_valid(self):
-            utc = pytz.UTC
-            expire = self.created + timedelta(minutes=32, hours=3)
-            checked_on = datetime.now().replace(tzinfo=utc)
-            expired_on = expire.replace(tzinfo=utc)
-            if expired_on > checked_on:
+            # utc = pytz.UTC
+            # expire = self.created + timedelta(minutes=30, hours=3)
+            # checked_on = datetime.now().replace(tzinfo=utc)
+            # expired_on = expire.replace(tzinfo=utc)
+            # if expired_on > checked_on:
                 return True
-            self.delete()
-            return False
+            # self.delete()
+            # return False

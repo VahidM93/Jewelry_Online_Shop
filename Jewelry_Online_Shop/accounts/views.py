@@ -41,7 +41,7 @@ class UserRegisterView(View):
                 return redirect('accounts:verify_code')
             else:
                 messages.error(request, _('Too many attempts. Please Try again 20 minutes later.'), 'danger')
-                return redirect('home:home')
+                return redirect('product:home')
         return render(request, self.template_name, {'form': form})
 
 
@@ -60,6 +60,7 @@ class UserRegisterVerifyCodeView(View):
         if form.is_valid():
             code = form.cleaned_data['code']
             if code == code_instance.code:
+                print(code)
                 if code_instance.is_valid():
                     user = Account.objects.create_user(
                         phone_number=user_session['phone_number'],
@@ -70,14 +71,14 @@ class UserRegisterVerifyCodeView(View):
                     codes.delete()
                     messages.success(request, _('information has registered successfully'), 'success')
                     login(request, user)
-                    return redirect('home:home')
+                    return redirect('product:home')
                 else:
                     messages.error(request, _('The code has expired. Please try again.'), 'danger')
                     return redirect('accounts:user_register')
             else:
                 messages.error(request, _('WRONG Code!'), 'danger')
                 return redirect('accounts:verify_code')
-        return redirect('home:home')
+        return redirect('product:home')
 
 
 class UserLoginView(View):
@@ -107,7 +108,7 @@ class UserLoginView(View):
                 messages.success(request, _('logged in successfully'), 'success')
                 if self.next:
                     return redirect(self.next)
-                return redirect('home:home')
+                return redirect('product:home')
             messages.error(request, _('Phone number or Password is WRONG!'), 'danger')
         return render(request, self.template_name, {'form': form})
 

@@ -53,7 +53,6 @@ class Product(ModelInfo):
     price = models.PositiveIntegerField(verbose_name=_('Price'))
     stock = models.PositiveIntegerField(verbose_name=_('Stock'))
     is_available = models.BooleanField(null=True, blank=True, verbose_name=_('Availability Status'))
-
     class Meta:
         ordering = ('name',)
         verbose_name = _('product')

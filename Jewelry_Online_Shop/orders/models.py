@@ -14,7 +14,7 @@ class Coupon(ModelInfo):
     valid_until = models.DateTimeField(verbose_name=_("Valid Until"))
     discount = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(90)],
                                            verbose_name=_("Discount"))
-
+    is_active=models.BooleanField(default=None)
     class Meta:
         verbose_name = _('Coupon')
         verbose_name_plural = _('Coupons')
@@ -48,7 +48,7 @@ class Order(ModelInfo):
     transaction_code = models.CharField(max_length=20, null=True, verbose_name=_("Transaction Code"))
 
     class Meta:
-        ordering = ('is_paid', '-updated')
+        ordering = ('is_paid', '-updated_at')
 
     def __str__(self):
         return f'{self.customer} - {self.id}'
