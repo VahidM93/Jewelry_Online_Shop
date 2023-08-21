@@ -41,9 +41,9 @@ INSTALLED_APPS = [
     'customers',
     'orders',
     'products',
-    'home',
     'core',
     # 'django-celery beat',
+    'storages'
 
 ]
 
@@ -91,19 +91,20 @@ WSGI_APPLICATION = 'Jewelry_Online_Shop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Onlinedbs', 
+        'NAME': 'jewelry_online_shop', 
         'USER': 'postgres',
-        'HOST': '127.0.0.1', 
+        'HOST': 'localhost', 
         'PORT': '5432',
+        'PASSWORD':'vahid1368'
     }
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379",
+#     }
+# }
 
 SESSION_ENGINE= "django.contrib.sessions.backends.cached_db"
 
@@ -140,15 +141,33 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+import os
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+MEDIA_ROOT = BASE_DIR / "media"
+STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
+
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.Account'
+
+# ARVAN CLOUD STORAGE
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_ACCESS_KEY_ID = 'e3704a4a-5d39-40a2-94fc-d9e347641402'
+# AWS_SECRET_ACCESS_KEY = '600bdebcdfbe147b352fe75078ec8ab1a051bfb06556f20b8ebec582d21c18bf'
+# AWS_S3_ENDPOINT_URL = 'https://s3.ir-thr-at1.arvanstorage.ir'
+# AWS_STORAGE_BUCKET_NAME = 'Deja'
+# AWS_SERVICE_NAME = 's3'
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_LOCAL_STORAGE = f'{BASE_DIR}/aws/'
