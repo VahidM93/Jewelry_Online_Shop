@@ -1,0 +1,43 @@
+services:
+  redis:
+    container_name: redis
+    image: redis:latest
+    networks:
+    - main_net
+    ports:
+    - "6379:6379"
+    restart: on-failure
+
+  worker:
+    build:
+      context: ./api
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.celery worker --loglevel=info
+  db:
+    image: postgres
+    volumes:
+    - postgres_data:postgres_data:/var/lib/postgresql/postgres_data
+    environment:
+    - POSTGRES_DB=jewelry_online_shop
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=vahid1368
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+    - .:/app
+    ports:
+    - "8000:8000"
+    environment:
+    - POSTGRES_NAME=jewelry_online_shop
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=vahid1368
+    depends_on:
+    - db
+    - redis
+networks:
+  main_net:
+
+volumes:
+  postgres_data:
