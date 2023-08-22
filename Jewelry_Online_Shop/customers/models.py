@@ -8,7 +8,7 @@ class Customer(ModelInfo):
     user = models.OneToOneField(Account, on_delete=models.CASCADE, related_name='customer', verbose_name=_('Account'))
     CHOICES = [('male', 'MALE'), ('female', 'FEMALE')]
     gender = models.CharField(max_length=20, choices=CHOICES, default='male', verbose_name=_('Gender'))
-    image = models.ImageField(null=True, blank=True, verbose_name=_('Image'))
+    image = models.ImageField(upload_to="customer/", null=True, blank=True, verbose_name=_('Image'))
     age = models.PositiveIntegerField(null=True, blank=True,verbose_name=_('Age'))
 
     class Meta:
@@ -18,7 +18,14 @@ class Customer(ModelInfo):
     def __str__(self):
         return self.user.full_name
 
-
+    def save(self, *args, **kwargs):
+        male = 'male.png'
+        female = 'female.png'
+        if not self.image:
+            self.image = male if self.gender == 'male' else female
+        elif self.image and self.image in [male, female]:
+            self.image = male if self.gender == 'male' else female
+        super(Customer, self).save(*args, **kwargs)
 
 
 class Address(ModelInfo):
