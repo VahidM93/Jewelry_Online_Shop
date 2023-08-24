@@ -3,10 +3,28 @@
 {% load i18n %}
 
 {% load static %}
+<style>
 
+	/* Style for the button */
+	.btn-primary {
+		margin-top: 80px
+		background-color: #007bff;
+		color: #fff;
+		padding: 10px 20px;
+		text-decoration: none;
+		border-radius: 20px;
+		position: absolute;
+		top: 10;
+		left: 10;
+	}
+</style>
 {% block title %}{% translate 'Profile Page' %}{% endblock %}
 
 {% block content %}
+<div class="btn-container">
+	<a href="{% url 'product:home' %}"
+		 class="btn btn-primary col-1">{% translate 'Home' %}</a>
+</div>
 	<div class="row mx-2">
 
 		<div class="col-md-4">
@@ -14,6 +32,7 @@
 				<div class="card-header">
 					<h4 class="text-center mt-2">{{ customer }}</h4>
 				</div>
+				
 				<div class="card-body text-center">
 					<img src="{{ customer.image.url }}" class="img-fluid w-50 rounded-circle">
 					<br><br>
@@ -300,7 +319,10 @@
 
 
 			</div>
-
+			<div class="btn-container">
+				<a href="{% url 'product:home' %}"
+					 class="btn btn-primary col-3">{% translate 'Home' %}</a>
+			</div>
 		</div>
 	</div>
 {% endblock %}
