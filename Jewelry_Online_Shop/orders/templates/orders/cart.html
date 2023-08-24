@@ -41,9 +41,9 @@
 
                 <td class="align-middle">{{ item.product }}</td>
                 <td class="align-middle">{{ item.quantity }}</td>
-                <td class="align-middle">$ {{ item.price }}</td>
-                <td class="align-middle">$ {{ item.total_price }}</td>
-                <td class="align-middle">$ {{ item.discount_price }}</td>
+                <td class="align-middle"> {{ item.price }} Toman</td>
+                <td class="align-middle"> {{ item.total_price }} Toman</td>
+                <td class="align-middle"> {{ item.discount_price }} Toman</td>
                 <td class="align-middle"><a href="{% url 'orders:cart_remove' item.product.id %}"><img
                         src="{% static 'img/delete.png' %}" alt="delete" width="30px" height="30px"></a></td>
 

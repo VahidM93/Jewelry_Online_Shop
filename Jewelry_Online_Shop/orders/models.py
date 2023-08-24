@@ -63,6 +63,14 @@ class Order(ModelInfo):
             return int(total - discount_price)
         return total
 
+    def check_address(self):
+        return True if self.customer.addresses else False
+
+    def save_address(self, address, phone_number):
+        self.city, self.body, self.postal_code = address.city, address.body, address.postal_code
+        self.phone_number = phone_number
+        self.save()
+        
 class OrderItem(ModelInfo):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

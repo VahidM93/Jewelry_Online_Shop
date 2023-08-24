@@ -1,5 +1,5 @@
 from decimal import Decimal
-from django.conf import settings
+from psycopg2 import IntegrityError
 from products.models import Product
 
 CART_SESSION_ID = 'cart'
@@ -60,3 +60,25 @@ class Cart:
     def clear(self):
         del self.session[CART_SESSION_ID]
         self.save()
+    @classmethod
+    def add_session_to_user_cart(cls,request):
+        try:
+            user = request.user
+            try:
+                cart = user.cart
+            except:
+                cart = cls.objects.create(customer=user)
+            cart_items = request.session["cart"]["cart_items"]
+
+            for item in cart_items:
+                product = Product.objects.get(id=item["product"]["id"])
+                try:
+                    cart_item = cls.objects.create(product=product, cart=cart)
+                    cart_item.quantity = item["quantity"]
+                    cart_item.save()
+                except IntegrityError:
+                    cart_item = cls.objects.get(product=product, cart=cart)
+                    cart_item.quantity = item["quantity"]
+                    cart_item.save()
+        except KeyError:
+            print(request.session.items())
