@@ -1,4 +1,4 @@
-{% comment %} {% extends 'base.html' %} {% endcomment %}
+{% extends 'base.html' %}
 
 {% load i18n %}
 
@@ -8,6 +8,8 @@
 {% block title %}{% translate 'Home' %}{% endblock %}
 
 {% block content %}
+{% include 'inc/navbar.html' %}
+
 	<div class="container-fluid">
 		<div class="row mt-3 mx-3">
 			<div class="col-6 justify-content-start">
@@ -56,19 +58,22 @@
 
 						<div class="row mx-2">
 							<div class="col-12">
-								<p class="fw-bold" style="font-size:26px">{{ product.name }}</p>
+								<p class="fw-bold" style="font-size:25px">{{ product.name }}</p>
 							</div>
 
-							<div class="col-{% if not product.discount %}12{% else %}6{% endif %}">
-								<h3>${{ product.price }}</h3>
+							<div class="col-{% if not product.discount %}12{% else %}6{% endif %}" style="font-size:12px">
+								<h3 style="font-size: 18px;">
+									<span style="color: #ffd700; padding: 2px;">{{ product.price }}</span> Toman
+								</h3>
+
 							</div>
 
 							{% if product.discount %}
 								<div class="col-6">
-									{#								<a href="" class="btn btn-primary{% if not product.is_available %} disabled {% endif %}"><i#}
-									{#												class="fa-solid fa-cart-plus"></i> Add</a>#}
-									<h3 class="text-danger">
-										<del>${{ product.price_no_discount }}</del>
+									{% comment %} <a href="" class="btn btn-primary{% if not product.is_available %} disabled {% endif %}"><i
+									class="fa-solid fa-cart-plus"></i> Add</a>
+									{% comment %} <h3 class="text-danger"> {% endcomment %} 
+										<del>{{ product.price_no_discount }} Toman</del>
 									</h3>
 								</div>
 
@@ -93,5 +98,5 @@
 		</div>
 	</div>
 
-
+	{% include 'inc/footer.html' %}
 {% endblock %}

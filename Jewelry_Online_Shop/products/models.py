@@ -46,7 +46,7 @@ class Product(ModelInfo):
     properties = models.ManyToManyField(Property, related_name='p_products', verbose_name=_('Properties'))
     name = models.CharField(max_length=200, verbose_name=_('Product Name'))
     slug = models.SlugField(max_length=200, unique=True, verbose_name=_('Slug'))
-    image = models.ImageField(default='product.png', null=True, blank=True, verbose_name=_('Image'))
+    image = models.ImageField(upload_to="images/", default="", null=True, blank=True, verbose_name=_('Image'))
     description = models.TextField(verbose_name=_('Description'))
     price_no_discount = models.PositiveIntegerField(verbose_name=_('Price without discount'))
     discount = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(90)], verbose_name=_('Discount'))

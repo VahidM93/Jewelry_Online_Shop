@@ -6,30 +6,48 @@
 
 {% block extrastyle %}
 	body {
-	background-image: url('/static/img/landing_page.jpg');
-	background-size: cover;
+	background-image: url('/static/img/background.jpg');
+	background-size: cover; 
 	background-repeat: no-repeat;
+	overflow: auto;
 	}
 
 {% endblock %}
 
 {% block content %}
-	<div class="container">
+	<div class="container"> 
 		<br><br><br>
 		<div class="col-md-6 mx-auto my-auto justify-content-space-between">
-			<div class="card bg-dark text-white text-center" style="opacity: 90%;">
-				<h1 class="card-header"><img src="/static/img/gold.png" width="55 px" height="50 px" alt="icon">
+			<div class="card bg-white text-golden text-center" style="opacity: 89%;">
+				<h1 class="card-header glow" style="font-size:50px"><img src="/static/img/ring_vitrin.jpg" width="85 px" height="85 px" alt="icon">
 					{% translate 'Deja' %}</h1>
-
-				<div class="p-4 mb-2 bg-dark text-white">
-					<h2 class="text-center text-primary">{% translate 'Welcome' %}</h2>
+					<style>
+						.glow {
+							font-size: 22px;
+							color: #FFFACD;
+							text-align: center;
+							animation: glow 1s ease-in-out infinite alternate;
+						  }
+						  
+						  @-webkit-keyframes glow {
+							from {
+							  text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700, 0 0 50px #FFD700, 0 0 60px #FFD700, 0 0 70px #e60073;
+							}
+							
+							to {
+							  text-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700, 0 0 40px #FFD700, 0 0 50px #FFD700, 0 0 60px #FFD700, 0 0 70px #FFD700, 0 0 80px #FFD700;
+							}
+						  }			  
+					</style>
+				<div class="p-4 mb-2 bg-golden text-golden">
+					<h2 class="text-center text-diamond.">{% translate 'Welcome' %}</h2>
 					<br>
 					<p style="font-size:20px;" dir="auto">{% translate 'The best laxtury axilary with the best prices. We hope you shine like a diamond.' %}</p>
 					<br><br>
 					<div class="row my-auto px-4">
 						<p class="col-md-6 text-start fw-bold" style="font-size:22px" dir="auto">{% translate 'Hope you enjoy!' %}</p>
-						<p class="col-md-6 text-end"><a class="btn btn-primary " href="{% url 'products:home' %}" role="button">
-							{% translate 'let have a trip' %}</a></p>
+						<p class="col-md-6 text-end"><a class="btn btn-primary text-green glow" href="{% url 'products:home' %}" role="button">
+							{% translate 'lets have a trip' %}</a></p>
 					</div>
 
 				</div>

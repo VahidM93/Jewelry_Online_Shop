@@ -33,8 +33,8 @@
 					<h3>{% translate 'Name' %}: {{ product }}</h3>
 					<hr>
 					<h4>{% translate 'Price' %}:
-						<del class="text-danger "> ${{ product.price_no_discount }}</del>
-						${{ product.price }}</h4>
+						<del class="text-danger "> {{ product.price_no_discount }} Toman</del>
+						{{ product.price }} Toman</h4>
 					<hr>
 					<h4>{% translate 'Discount' %}: %{{ product.discount }}</h4>
 					<hr>
@@ -95,7 +95,7 @@
 								<div class="card h-100">
 									<div class="card-header text-center" id="properties">
 										<h3 class="text-center">
-											<img src="/static/img/laptop.png" width="45px" height="40px"
+											<img src="/static/img/Deja.jpg" width="45px" height="40px"
 													 alt="icon"> {% translate 'Properties' %}
 										</h3>
 									</div>
@@ -110,13 +110,13 @@
 								</div>
 							</div>
 						</div>
-
-						<div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="ex1-tab-2">
+							
+						<div class="tab-nav-stacked fade" id="comments" role="tabpanel" aria-labelledby="ex1-tab-2">
 
 							<div class="card">
 								<div class="card-header text-center">
 									<h3 class="text-center">
-										<img src="/static/img/laptop.png" width="45px" height="40px"
+										<img src="/static/img/Deja.jpg" width="45px" height="40px"
 												 alt="icon"> {% translate 'Comments' %}
 									</h3>
 								</div>

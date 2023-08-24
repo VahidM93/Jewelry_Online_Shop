@@ -40,8 +40,8 @@ class ProductDetailsView(View):
 
     def setup(self, request, *args, **kwargs):
         self.product = Product.objects.get(slug=kwargs['slug'])
-        self.properties = self.product.properties.all().values()  # Convert related instances to values
-        self.comments = self.product.pcomments.all().values()     # Convert related instances to values
+        self.properties = self.product.properties.all()
+        self.comments = self.product.pcomments.all()
         return super().setup(request, *args, **kwargs)
 
     def get(self, request, slug):
