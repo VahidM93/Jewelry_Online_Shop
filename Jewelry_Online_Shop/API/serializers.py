@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from accounts.models import Account
 from customers.models import Customer, Address
-from orders.models import Order, OrderItem, Coupon
+from orders.models import Order, OrderItem
 from products.models import Product, Category, Comment
 
 
@@ -13,7 +13,8 @@ class RegisterSerializers(serializers.ModelSerializer):
         model = Account
         fields = ('phone_number', 'full_name', 'password', 'password2')
         extra_kwargs = {
-            'password': {'write_only': True},
+            'password': {'write_only': True},# ```write only means it just can be write and it is 
+            #possible to read due to security  
         }
 
     def create(self, validated_data):
@@ -36,7 +37,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         model= Account
         fields = '__all__'
 
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(max_length=255, required=False)
 
+    class Meta:
+        model = Customer
+        fields = ('id', 'full_name', 'user', 'gender', 'age', 'image')
 # --------------------- customers app ---------------------
 class AddressSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField(read_only=True)
@@ -89,15 +95,15 @@ class CommentSerializer(serializers.ModelSerializer):
             model = Comment
             fields = ('id', 'product', 'customer', 'title', 'body', 'created')
 
+class QuantitySerializer(serializers.Serializer):
+    quantity = serializers.IntegerField()
+
+    def validate_quantity(self, value):
+        if value < 1 or value > 2:
+            raise serializers.ValidationError("Quantity must be greater than 0 and lower than 3")
+        return value
 
 # --------------------- orders app ---------------------
-
-
-from rest_framework import serializers
-
-from customers.models import Customer
-from .models import Order, OrderItem
-
 class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.StringRelatedField(read_only=True)
 

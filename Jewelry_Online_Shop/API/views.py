@@ -1,19 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from accounts.permissions import IsOwnerOrReadOnly
 
 from customers.models import Address
 from orders.cart import Cart
 from orders.models import Order, OrderItem, Coupon
-from product import tasks
-from bucket import bucket
-from product.models import Product, Category
+# from products import tasks
+from products.models import Product, Category
 from .serializers import ProfileSerializer, ProfileUpdateSerializer, AddressSerializer, ProductSerializer, \
     ProductDetailSerializer, CategorySerializer, OrderSerializer, \
     CustomerUnpaidOrdersSerializer, QuantitySerializer, CommentSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework import generics, status
-
 
 # --------------------- accounts app ---------------------
 class ProfileAPIView(APIView):
@@ -26,10 +25,11 @@ class ProfileAPIView(APIView):
 
 
 class ProfileUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]
 
     def put(self, request):
         user = request.user
+        self.check_object_permissions(request,user)
         customer = user.customer
         serializer = ProfileUpdateSerializer(instance=customer, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -38,6 +38,7 @@ class ProfileUpdateAPIView(APIView):
         user.save()
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 # --------------------- customers app ---------------------
@@ -86,7 +87,19 @@ class AddressDeleteAPIView(APIView):
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.filter(is_sub=False)
     serializer_class = CategorySerializer
-
+    
+class CategoryAPIView(APIView):
+    permission_classes = [IsAdminUser]
+    serializer_class=CategorySerializer  #to better inform and detect in swagger
+    
+    
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  
+        result = serializer.data.copy()
+        result.update({'message': 'Your cat has been sent successfully.'})
+        return Response(result, status=status.HTTP_201_CREATED)
 
 class ProductListAPIView(APIView):
 
@@ -116,39 +129,6 @@ class CommentCreateAPIView(APIView):
         result = serializer.data.copy()
         result.update({'message': 'Your comment has been sent successfully.'})
         return Response(result, status=status.HTTP_201_CREATED)
-
-
-# --------------------- bucket ---------------------
-class BucketListAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        bucket_data = bucket.get_objects()
-        return Response(bucket_data, status=status.HTTP_200_OK)
-
-
-class BucketDeleteAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def delete(self, request, key):
-        tasks.delete_object_task.delay(key)
-        return Response(status=status.HTTP_200_OK, data={'message': 'object deleted'})
-
-
-class BucketDownloadAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request, key):
-        tasks.download_object_task.delay(key)
-        return Response(status=status.HTTP_200_OK, data={'message': 'object downloaded'})
-
-
-class BucketUploadAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request, key):
-        tasks.upload_object_task.delay(key)
-        return Response(status=status.HTTP_200_OK, data={'message': 'object uploaded'})
 
 
 # --------------------- cart ---------------------
