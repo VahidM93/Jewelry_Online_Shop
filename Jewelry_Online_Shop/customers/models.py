@@ -19,8 +19,8 @@ class Customer(ModelInfo):
         return self.user.full_name
 
     def save(self, *args, **kwargs):
-        male = 'male.png'
-        female = 'female.png'
+        male = 'img/male.png'
+        female = 'img/female.png'
         if not self.image:
             self.image = male if self.gender == 'male' else female
         elif self.image and self.image in [male, female]:
