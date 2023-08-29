@@ -1,6 +1,7 @@
 from django.conf import settings
 import requests
 import json
+import jsonpickle
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
@@ -12,6 +13,8 @@ from .models import Order, OrderItem, Coupon
 from customers.models import Customer
 from django.utils.translation import gettext as _
 from products.models import Product
+from orders.tasks import send_order_status_email
+from .models import Order
 
 
 class CartView(View):
@@ -133,7 +136,7 @@ class OrderDetailView(LoginRequiredMixin, View):
             phone_number = form.cleaned_data['phone_number']
             order.save_address(address, phone_number)
             if form.cleaned_data['coupon']:
-                coupon = Coupon.objects.get_active_list().filter(code=form.cleaned_data['coupon'])
+                coupon = Coupon.objects.all().filter(code=form.cleaned_data['coupon'])
                 if coupon.exists():
                     coupon = coupon.get()
                     if coupon.is_coupon_valid():
@@ -179,15 +182,61 @@ ZP_API_STARTPAY = f"https://{sandbox}.zarinpal.com/pg/StartPay/"
 description = _("Deja Online Shop")
 CallbackURL = "http://127.0.0.1:8000/orders/verify/"
 
+# class OrderPaymentView(View):
+    # def get(self, request, order_id):
+    #     order = Order.objects.get(id=order_id)
+    #     request.session["order_pay"] = {
+    #         "order_id": order.id,
+    #     }
+    #     data = {
+    #         "MerchantID": settings.MERCHANT,
+    #         "Amount": float(order.get_total_price()) * 1000,
+    #         "Description": description,
+    #         "CallbackURL": CallbackURL,
+    #         "metadata": {"mobile": order.phone_number},
+    #     }
+    #     data = json.dumps(data)
+    #     headers = {
+    #         "accept": "application/json",
+    #         "content-type": "application/json",
+    #         "content-length": str(len(data)),
+    #     }
+    #     try:
+    #         response = requests.post(
+    #             ZP_API_REQUEST, data=data, headers=headers, timeout=10
+    #         )
+    #         if response.status_code == 200:
+    #             response = response.json()
+    #             if response["Status"] == 100:
+    #                 return redirect(ZP_API_STARTPAY + str(response["Authority"]))
+    #             elif response.get("errors"):
+    #                 e_code = response["errors"]["code"]
+    #                 e_message = response["errors"]["message"]
+    #                 return HttpResponse(
+    #                     f"Error code: {e_code}, Error Message: {e_message}"
+    #                 )
+    #         return HttpResponse(response.items())
+
+    #     except requests.exceptions.Timeout:
+    #         return {"status": False, "code": "timeout"}
+    #     except requests.exceptions.ConnectionError:
+    #         return {"status": False, "code": "connection error"}
 class OrderPaymentView(View):
     def get(self, request, order_id):
-        order = Order.objects.get(id=order_id)
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            # Handle the case where the order does not exist
+            messages.error(request, 'Invalid order ID')
+            return redirect('accounts:user_profile')
+
         request.session["order_pay"] = {
             "order_id": order.id,
         }
+        
         data = {
             "MerchantID": settings.MERCHANT,
-            "Amount": float(order.get_total_price()) * 1000,
+            "Amount": int(round(float(order.get_total_price()))) * 1000,
             "Description": description,
             "CallbackURL": CallbackURL,
             "metadata": {"mobile": order.phone_number},
@@ -222,58 +271,73 @@ class OrderPaymentView(View):
 
 class OrderVerifyView(View):
     def get(self, request):
+        # Check if 'order_pay' key exists in the session
+        order_pay_data = request.session.get('order_pay', None)
 
-        order_id = request.session["order_pay"]["order_id"]
-        order = Order.objects.get(id=int(order_id))
-        data = {
-            "MerchantID": settings.MERCHANT,
-            "Amount": int(round(float(order.get_total_price()))) * 1000,
-            "Authority": request.GET["Authority"],
-        }
-        data = json.dumps(data)
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-            "content-length": str(len(data)),
-        }
+        if order_pay_data is not None:
+            # The 'order_pay' key exists in the session
+            order_id = order_pay_data.get('order_id')
+            try:
+                order = Order.objects.get(id=order_id)
+            except Order.DoesNotExist:
+                # Handle the case where the order does not exist
+                messages.error(request, 'Invalid order ID')
+                return redirect('accounts:user_profile')
 
-        response = requests.post(ZP_API_VERIFY, data=data, headers=headers)
-        if response.status_code == 200:
-            response = response.json()
-            if response["Status"] == 100 or response["Status"] == 101:
-                order.status = 2
-                order.transaction_id = response["RefID"]
-                order.is_paid = True
-                order.save()
-                
-                if order.coupon:
-                    coupon = order.coupon
-                    coupon.is_active = False
-                    coupon.save()
-                    order.coupon = None
+            data = {
+                "MerchantID": settings.MERCHANT,
+                "Amount": int(round(float(order.get_total_price()))) * 1000,
+                "Authority": request.GET["Authority"],
+            }
+            data = jsonpickle.encode(data)  # Use jsonpickle.encode() for serialization
+            headers = {
+                "accept": "application/json",
+                "content-type": "application/json",
+                "content-length": str(len(data)),
+            }
+
+            response = requests.post(ZP_API_VERIFY, data=data, headers=headers)
+            if response.status_code == 200:
+                response = response.json()
+                if response["Status"] == 100 or response["Status"] == 101:
+                    order.status = 2
+                    order.transaction_id = response["RefID"]
+                    order.is_paid = True
                     order.save()
 
-                items = order.items.all()
-                product_ids = [item.product.id for item in items]
-                products = Product.objects.all().filter(id__in=product_ids)
-                for item in items:
-                    product = products.get(id=item.product.id)
-                    product.stock -= item.quantity
-                    product.save()
+                    if order.coupon:
+                        coupon = order.coupon
+                        coupon.is_active = False
+                        coupon.save()
+                        order.coupon = None
+                        order.save()
 
-                # if order.customer.email:
-                #     mail = order.customer.email
-                #     message = f"Transaction success.RefID:  {str(response['RefID'])}"
-                #     mail_subject = "Order Confirmed Successfuly"
-                    # send_order_status_email.delay(mail, message, mail_subject)
+                    items = order.items.all()
+                    product_ids = [item.product.id for item in items]
+                    products = Product.objects.all().filter(id__in=product_ids)
+                    for item in items:
+                        product = products.get(id=item.product.id)
+                        product.stock -= item.quantity
+                        product.save()
 
-                message=f"Transaction success.RefID:  {str(response['RefID'])}, Status: {response['Status']}, order ID: {order_id}"
-                return redirect('accounts:user_profile')
-            else:
-                order.status = 3
-                order.save()
-                message=f"Transaction failed, order ID:" + str(order_id)
+                    if order.customer.user.email:
+                        mail = order.customer.user.email
+                        message = f"Transaction success.RefID:  {str(response['RefID'])}"
+                        mail_subject = "Order Confirmed Successfully"
+                        send_order_status_email.delay(mail, message, mail_subject)
+
+                    message = f"Transaction success.RefID:  {str(response['RefID'])}, Status: {response['Status']}, order ID: {order_id}"
+                    return redirect('accounts:user_profile')
+                else:
+                    order.status = 3
+                    order.save()
+                    message = f"Transaction failed, order ID:" + str(order_id)
+            return redirect('accounts:user_profile')
+
+        # Handle the case where 'order_pay' is not in the session
+        messages.error(request, 'No order payment data found in the session')
         return redirect('accounts:user_profile')
+
 
 # class OrderPaymentView(LoginRequiredMixin, View):
 #     def get(self, request, order_id):

@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   redis:
     container_name: redis
@@ -10,14 +12,14 @@ services:
 
   worker:
     build:
-      context: ./api
+      context: D:\Jewelry_shop\Jewelry_Online_Shop\Jewelry_Online_Shop
     hostname: worker
     entrypoint: celery
-    command: -A celery_app.celery worker --loglevel=info
+    command: -A Jewelry_Online_Shop.celery_conf worker --loglevel=info
   db:
     image: postgres
     volumes:
-    - postgres_data:postgres_data:/var/lib/postgresql/postgres_data
+    - ./data/db:/var/lib/postgresql/data
     environment:
     - POSTGRES_DB=jewelry_online_shop
     - POSTGRES_USER=postgres

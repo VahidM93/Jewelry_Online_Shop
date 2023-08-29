@@ -18,3 +18,4 @@ def send_order_status_email(self, target_mail, message, mail_subject):
         fail_silently=False,
     )
     return f"Email sent to {target_mail} successfully"
+#TO DO fail email message

@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'products',
     'core',
     # 'django-celery beat',
-    'storages',
     'API',
     'drf_spectacular',
 
@@ -99,7 +98,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'jewelry_online_shop', 
         'USER': 'postgres',
-        'HOST': 'localhost', 
+        'HOST': 'db', 
         'PORT': '5432',
         'PASSWORD':'vahid1368'
     }
@@ -185,6 +184,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 2,
 }
 
 

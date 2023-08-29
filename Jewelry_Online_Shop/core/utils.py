@@ -7,7 +7,7 @@ def random_code(start=1000, end=9999):
 
 
 def send_otp_code(phone_number, code):
-    API_KEY = 'Maktab93'
+    API_KEY = '44656A6B7A2B7A54756937704172674356557476514F7863614D4C5A5064355445584F7A71504A512B6F673D'
     try:
         api = KavenegarAPI(API_KEY)
         params = {

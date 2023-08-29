@@ -2,12 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from accounts.permissions import IsOwnerOrReadOnly
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from customers.models import Address
 from orders.cart import Cart
 from orders.models import Order, OrderItem, Coupon
 # from products import tasks
 from products.models import Product, Category
+from products.paginations import ProductPagination
 from .serializers import ProfileSerializer, ProfileUpdateSerializer, AddressSerializer, ProductSerializer, \
     ProductDetailSerializer, CategorySerializer, OrderSerializer, \
     CustomerUnpaidOrdersSerializer, QuantitySerializer, CommentSerializer
@@ -84,6 +87,7 @@ class AddressDeleteAPIView(APIView):
 
 
 # --------------------- product app ---------------------
+
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.filter(is_sub=False)
     serializer_class = CategorySerializer
@@ -102,7 +106,9 @@ class CategoryAPIView(APIView):
         return Response(result, status=status.HTTP_201_CREATED)
 
 class ProductListAPIView(APIView):
-
+    pagination_class = ProductPagination
+    
+    @method_decorator(cache_page(10))
     def get(self, request):
         products = Product.objects.filter(is_available=True)
         serializer = ProductSerializer(instance=products, many=True)
@@ -110,7 +116,7 @@ class ProductListAPIView(APIView):
 
 
 class ProductDetailAPIView(APIView):
-
+    
     def get(self, request, slug):
         product = Product.objects.get(slug=slug)
         serializer = ProductDetailSerializer(instance=product)
@@ -134,7 +140,7 @@ class CommentCreateAPIView(APIView):
 # --------------------- cart ---------------------
 
 class CartAPIView(APIView):
-
+    @method_decorator(cache_page(180))
     def get(self, request):
         cart = Cart(request)
         result = cart.cart.copy()
@@ -169,7 +175,7 @@ class OrderCreateAPIView(APIView):
     def get(self, request):
         cart = Cart(request)
         customer = request.user.customer
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=customer) 
         for item in cart:
             OrderItem.objects.create(
                 order=order,
@@ -186,7 +192,7 @@ class OrderCheckoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(Order, id=order_id).prefetch_related("items").select_related("customer")
         serializer = OrderSerializer(instance=order)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

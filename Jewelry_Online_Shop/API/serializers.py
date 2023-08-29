@@ -16,6 +16,7 @@ class RegisterSerializers(serializers.ModelSerializer):
             'password': {'write_only': True},# ```write only means it just can be write and it is 
             #possible to read due to security  
         }
+        #TODO password2 in front
 
     def create(self, validated_data):
         del validated_data['password2']
